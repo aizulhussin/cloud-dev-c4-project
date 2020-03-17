@@ -1,6 +1,6 @@
 service:
   name: cikooapps-todo-app
-
+  
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
@@ -78,32 +78,33 @@ functions:
 resources:
   Resources:
     TodosTable:
-  Type: AWS::DynamoDB::Table
-  Properties:
-    AttributeDefinitions:
-      - AttributeName: userId
-        AttributeType: S
-      - AttributeName: todoId
-        AttributeType: S
-      - AttributeName: dueDate
-        AttributeType: S
-      - AttributeName: done
-        AttributeType: BOOL
-      - AttributeName: attachmentUrl
-        AttributeType: S
-    KeySchema:
-      - AttributeName: userId
-        KeyType: HASH
-      - AttributeName: todoId
-        KeyType: RANGE
-    BillingMode: PAY_PER_REQUEST
-    TableName: ${self:provider.environment.TODOS_TABLE}
-    LocalSecondaryIndexes:
-      - IndexName: ${self:provider.environment.INDEX_NAME}
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: todoId
+            AttributeType: S
+          - AttributeName: dueDate
+            AttributeType: S
+          - AttributeName: done
+            AttributeType: BOOL
+          - AttributeName: attachmentUrl
+            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
-          - AttributeName: dueDate
+          - AttributeName: todoId
             KeyType: RANGE
-        Projection:
-          ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.TODOS_TABLE}
+        LocalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.INDEX_NAME}
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: dueDate
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          
