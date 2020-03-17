@@ -1,5 +1,5 @@
 service:
-  name: serverless-todo-app
+  name: cikooapps-todo-app
 
 plugins:
   - serverless-webpack
@@ -10,7 +10,7 @@ provider:
   runtime: nodejs8.10
 
   stage: ${opt:stage, 'dev'}
-  region: ${opt:region, 'us-east-1'}
+  region: ${opt:region, 'ap-southeast-1'}
   
   environment:
     TODOS_TABLE: todosTable
@@ -18,7 +18,7 @@ provider:
     IMAGES_S3_BUCKET: cikooapps-todo-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     
- iamRoleStatements:
+  iamRoleStatements:
     - Effect: Allow
       Action:
         - dynamodb:Scan
@@ -26,7 +26,7 @@ provider:
         - dynamodb:GetItem
         - dynamodb:DeleteItem
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-      - Effect: Allow
+    - Effect: Allow
       Action:
         - s3:PutObject
         - s3:GetObject
@@ -87,6 +87,10 @@ resources:
         AttributeType: S
       - AttributeName: dueDate
         AttributeType: S
+      - AttributeName: done
+        AttributeType: BOOL
+      - AttributeName: attachmentUrl
+        AttributeType: S
     KeySchema:
       - AttributeName: userId
         KeyType: HASH
@@ -102,4 +106,4 @@ resources:
           - AttributeName: dueDate
             KeyType: RANGE
         Projection:
-          ProjectionType: ALL # What attributes will be copied to an index
+          ProjectionType: ALL
