@@ -17,6 +17,20 @@ provider:
     INDEX_NAME:  todosIndex
     IMAGES_S3_BUCKET: cikooapps-todo-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
+    
+ iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:DeleteItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+      Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}
 
 functions:
 
