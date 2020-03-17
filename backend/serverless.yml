@@ -7,7 +7,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
 
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'ap-southeast-1'}
@@ -86,10 +86,6 @@ resources:
           - AttributeName: todoId
             AttributeType: S
           - AttributeName: dueDate
-            AttributeType: S
-          - AttributeName: done
-            AttributeType: B
-          - AttributeName: attachmentUrl
             AttributeType: S
         KeySchema:
           - AttributeName: userId
