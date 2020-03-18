@@ -13,20 +13,26 @@ export class DataAccess{
     {}
   
   //getAllToDos
-  async getAllToDos(userId:string): Promise<TodoItem[]> {
+  async getAllToDos(userId:string) {
       this.logger.info("getAllToDos")
       
-      const result = await this.docClient.query({
-      TableName : this.todosTable,
-      KeyConditionExpression: 'userId = :userId',
-      ExpressionAttributeValues: {
-          ':userId': userId
+      try{
+          const result = await this.docClient.query({
+          TableName : this.todosTable,
+          KeyConditionExpression: 'userId = :userId',
+          ExpressionAttributeValues: {
+              ':userId': userId
+          }
+            }).promise()
+            
+            const items = result.Items
+            this.logger.info("sukses")
+            this.logger.info(items)
+            return items
+      }catch(error){
+          this.logger.error(error)
+          return {}
       }
-        }).promise()
-
-        const items = result.Items
-        this.logger.info(items)
-        return items as TodoItem[]
   }
   
   //updateToDo
@@ -47,57 +53,53 @@ export class DataAccess{
         ReturnValues:"UPDATED_NEW"
       };
       
-      await this.docClient.update(params)
-      .promise()
-      .then(data=>{
-          this.logger.info(data)
-          this.logger.info("Update successful")
-      }).catch(error=>{
-          this.logger.error(error)
-      });
+      return await this.docClient.update(params).promise()
       
   }
   
   
   //createTodo
   async createTodo(item:TodoItem){
+      try{
       await this.docClient.put({
       TableName: this.todosTable,
       Item: item
-    })
-    .promise().then(data=>{
-      this.logger.info(data)
-      this.logger.info("createTodo successful")
-    }).catch(error=>{
-      this.logger.error(error)
-    })
+    }).promise()
+      
+        this.logger.info("create todo success")
+        return item
+          
+      }
+      catch(error){
+        this.logger.error("create todo error")
+        return {}
+      }
   }
   
   //deleteTodo
   async deleteTodo(userId:string,todoId:string){
+    try{
     var params = {
         TableName:this.todosTable,
         Key:{
-            "userId":userId,
+            "userId": userId,
             "todoId": todoId,
         }
      };
      
-     this.docClient.delete(params)
-     .promise()
-     .then(data=>{
-         this.logger.info(data)
-         this.logger.info("delete success")
-     }).catch(error=>{
-         this.logger.error(error)
-     })
-  
-  
+     this.logger.info("delete successful")
+     return await this.docClient.delete(params).promise()
+     
+    }catch(error){
+        this.logger.info(error)
+        return {}
+    }
   }
   
 }
 
 
 function createDynamoDBClient() {
+   console.log("create documentClient")    
    return new DocumentClient()
 }

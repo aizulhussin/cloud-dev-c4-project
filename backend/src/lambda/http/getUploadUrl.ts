@@ -21,7 +21,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const url = getUploadUrl(todoId,'image/*');
   
   //update url in db
-  
+    
   
   logger.info(url)
   

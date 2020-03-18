@@ -1,41 +1,42 @@
 import 'source-map-support/register'
-import * as AWS  from 'aws-sdk'
+//import * as AWS  from 'aws-sdk'
 import * as uuid from 'uuid'
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 import { getUserId } from '../../lambda/utils' 
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 import { createLogger } from '../../utils/logger'
+import {createTodo} from '../../businessLogic/todo'
 
 const logger = createLogger('CreateTodo')
-const docClient = new AWS.DynamoDB.DocumentClient()
-const todosTable = process.env.TODOS_TABLE
+//const docClient = new AWS.DynamoDB.DocumentClient()
+//const todosTable = process.env.TODOS_TABLE
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   
   logger.info("createToDo")
-  console.log("log createToDo")
   
   const newTodo: CreateTodoRequest = JSON.parse(event.body)
   const todoId = uuid.v4()
   const userId = getUserId(event)
   const name = newTodo.name
   const dueDate = newTodo.dueDate
-  const newItem = createItem(userId,todoId,name,dueDate)
-  await createToDo(newItem);
+  //const newItem = createItem(userId,todoId,name,dueDate)
+  //await createToDo(newItem);
+  //const responseData = JSON.stringify(newItem);
+  //var statusCode = 200;
   
-  const responseData = JSON.stringify(newItem);
-  var statusCode = 200;
+  const items = await createTodo(userId,todoId,name,dueDate)
   
   return {
-    statusCode: statusCode,
+    statusCode: 200,
     headers: {
       'Access-Control-Allow-Origin': '*'
     },
-    body: responseData
+    body: JSON.stringify(items)
   }
 }
 
-function createItem(userId:string,todoId:string,name:string,dueDate:string){
+/*function createItem(userId:string,todoId:string,name:string,dueDate:string){
   
   const timestamp = new Date().toISOString()
   const done = false;
@@ -55,8 +56,9 @@ function createItem(userId:string,todoId:string,name:string,dueDate:string){
   
   return newItem
   
-}
+}*/
 
+/*
 async function createToDo(item:any){
   
   logger.info("createToDo DynamoDB")
@@ -73,4 +75,4 @@ async function createToDo(item:any){
       logger.error(error)
     })
     
-}
+}*/
