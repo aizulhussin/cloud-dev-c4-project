@@ -15,7 +15,7 @@ provider:
   environment:
     TODOS_TABLE: todosTable
     INDEX_NAME:  todosIndex
-    IMAGES_S3_BUCKET: cikooapps-todo-images-${self:provider.stage}
+    IMAGES_S3_BUCKET: cikoo-todo-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
   
   iamRoleStatements:
@@ -96,6 +96,11 @@ functions:
           path: todos/{todoId}/attachment
           cors: true
           authorizer: Auth
+    iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:UpdateItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
 resources:
   Resources:
@@ -128,14 +133,14 @@ resources:
     AttachmentsBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: "${self:provider.environment.IMAGES_S3_BUCKET}/*""
+        BucketName: '${self:provider.environment.IMAGES_S3_BUCKET}'
         CorsConfiguration:
           CorsRules:
             -
               AllowedOrigins:
                 - '*'
-              AllowedHeaders:
-                - '*'
+  #            AllowedHeaders:
+  #              - '*'
               AllowedMethods:
                 - GET
                 - PUT
@@ -143,11 +148,12 @@ resources:
                 - DELETE
                 - HEAD
               MaxAge: 3000
+    
     BucketPolicy:
       Type: AWS::S3::BucketPolicy
       Properties:
         PolicyDocument:
-          Id: MyPolicy
+          Id: TodoS3Policy
           Version: "2012-10-17"
           Statement:
             - Sid: PublicReadForGetBucketObjects

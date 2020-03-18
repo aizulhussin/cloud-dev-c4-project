@@ -35,6 +35,25 @@ export class DataAccess{
       }
   }
   
+  
+  async updateAttachmentUrl(userId:string,todoId:string,url:string){
+    var params = {
+        TableName:this.todosTable,
+        Key:{
+            "userId":userId,
+            "todoId": todoId,
+        },
+        UpdateExpression: "set attachmentUrl = :url",
+        ExpressionAttributeValues:{
+            ":url":url
+        },
+        ReturnValues:"UPDATED_NEW"
+      };
+      
+      return await this.docClient.update(params).promise()  
+  }
+  
+  
   //updateToDo
   async updateTodo(userId:string,todoId:string,item:TodoUpdate){
       

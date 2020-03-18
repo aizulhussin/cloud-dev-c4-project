@@ -52,17 +52,28 @@ export async function updateTodo(userId:string,todoId:string,updateTodo:UpdateTo
 }
 
 
+export async function updateAttachmentUrl(userId:string,todoId:string,url:string){
+    
+    logger.info("updateAttachmentUrl")
+    try{
+        logger.info("updateAttachmentUrl success")
+        return await dataAccess.updateAttachmentUrl(userId,todoId,url)
+    }catch(error){
+        logger.error(error)
+    }
+}
+
+
 export async function deleteTodo(userId:string,todoId:string){
     logger.info("deleteTodo")
     return await dataAccess.deleteTodo(userId,todoId)
 }
 
 
-export function getUploadUrl(todoId: string,contentType:string) {
+export function getUploadUrl(todoId: string) {
   return s3.getSignedUrl('putObject', {
     Bucket: bucketName,
     Key: todoId,
-    ContentType: contentType,
     Expires: urlExpiration
   })
 }
