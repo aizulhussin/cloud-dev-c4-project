@@ -3,10 +3,14 @@ import * as AWS  from 'aws-sdk'
 import { getUserId } from '../../lambda/utils' 
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 
+
+
 const todosTable = process.env.TODOS_TABLE
 const docClient = new AWS.DynamoDB.DocumentClient()
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  
+  console.log("execute getTodos")
   
   const userId = getUserId(event)
   
