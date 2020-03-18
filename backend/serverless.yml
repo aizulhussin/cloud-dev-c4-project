@@ -17,6 +17,13 @@ provider:
     INDEX_NAME:  todosIndex
     IMAGES_S3_BUCKET: cikooapps-todo-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
+  
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:PutObjectAcl
+      Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}
     
 functions:
 
@@ -81,20 +88,14 @@ functions:
         - dynamodb:DeleteItem
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
   # TODO: Configure this function
-  GenerateUploadUrl:
-    handler: src/lambda/http/generateUploadUrl.handler
+  GetUploadUrl:
+    handler: src/lambda/http/getUploadUrl.handler
     events:
       - http:
           method: post
           path: todos/{todoId}/attachment
           cors: true
           authorizer: Auth
-    iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - s3:PutObject
-        - s3:GetObject
-      Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}
 
 resources:
   Resources:
@@ -124,4 +125,22 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
+    AttachmentsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.IMAGES_S3_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+            -
+              AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
           

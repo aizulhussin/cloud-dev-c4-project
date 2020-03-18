@@ -4,51 +4,73 @@ import * as uuid from 'uuid'
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 import { getUserId } from '../../lambda/utils' 
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
+import { createLogger } from '../../utils/logger'
 
+const logger = createLogger('CreateTodo')
 const docClient = new AWS.DynamoDB.DocumentClient()
-
 const todosTable = process.env.TODOS_TABLE
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   
+  logger.info("createToDo")
+  console.log("log createToDo")
+  
   const newTodo: CreateTodoRequest = JSON.parse(event.body)
   const todoId = uuid.v4()
   const userId = getUserId(event)
-  const newItem = createToDo(userId,todoId,newTodo);
+  const name = newTodo.name
+  const dueDate = newTodo.dueDate
+  const newItem = createItem(userId,todoId,name,dueDate)
+  await createToDo(newItem);
+  
+  const responseData = JSON.stringify(newItem);
+  var statusCode = 200;
   
   return {
-    statusCode: 200,
+    statusCode: statusCode,
     headers: {
       'Access-Control-Allow-Origin': '*'
     },
-    body: JSON.stringify(newItem)
+    body: responseData
   }
 }
 
-
-async function createToDo(userId:string,todoId:string,createTodoRequest:CreateTodoRequest){
+function createItem(userId:string,todoId:string,name:string,dueDate:string){
   
   const timestamp = new Date().toISOString()
   const done = false;
-  const imageS3Url = ``
-  
+  const imageS3Url = "none"
   
   const newItem = {
     userId,
     todoId,
     timestamp,
     done,
-    createTodoRequest,
+    name,
+    dueDate,
     imageS3Url
   }
+  
+  logger.info(newItem)
+  
+  return newItem
+  
+}
+
+async function createToDo(item:any){
+  
+  logger.info("createToDo DynamoDB")
+  
   
   await docClient
     .put({
       TableName: todosTable,
-      Item: newItem
+      Item: item
     })
-    .promise()
-
-  return newItem
-  
+    .promise().then(data=>{
+      logger.info(data)
+    }).catch(error=>{
+      logger.error(error)
+    })
+    
 }
