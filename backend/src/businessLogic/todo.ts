@@ -7,7 +7,7 @@ import * as AWS  from 'aws-sdk'
 
 const dataAccess = new DataAccess()
 const logger = createLogger("todo")
-const bucketName = process.env.IMAGES_S3_BUCKET
+const bucketName = process.env.ATTACHMENT_S3_BUCKET
 const urlExpiration = process.env.SIGNED_URL_EXPIRATION
 
 const s3 = new AWS.S3({
@@ -70,10 +70,13 @@ export async function deleteTodo(userId:string,todoId:string){
 }
 
 
-export function getUploadUrl(todoId: string) {
+export function getUploadUrl(todoId: string,contentType:string) {
+  logger.info(bucketName)
+  
   return s3.getSignedUrl('putObject', {
     Bucket: bucketName,
     Key: todoId,
+    ContentType:contentType,
     Expires: urlExpiration
   })
 }

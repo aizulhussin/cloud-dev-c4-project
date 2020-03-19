@@ -15,15 +15,15 @@ provider:
   environment:
     TODOS_TABLE: todosTable
     INDEX_NAME:  todosIndex
-    IMAGES_S3_BUCKET: cikoo-todo-images-${self:provider.stage}
+    ATTACHMENT_S3_BUCKET: todo-attachments-bucket-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
   
   iamRoleStatements:
     - Effect: Allow
       Action:
         - s3:PutObject
-        - s3:PutObjectAcl
-      Resource: "arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*"
+        - s3:GetObject
+      Resource: "arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}"
       
 functions:
 
@@ -133,14 +133,14 @@ resources:
     AttachmentsBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: '${self:provider.environment.IMAGES_S3_BUCKET}'
+        BucketName: '${self:provider.environment.ATTACHMENT_S3_BUCKET}'
         CorsConfiguration:
           CorsRules:
             -
               AllowedOrigins:
                 - '*'
-  #            AllowedHeaders:
-  #              - '*'
+              AllowedHeaders:
+                - '*'
               AllowedMethods:
                 - GET
                 - PUT
@@ -149,17 +149,17 @@ resources:
                 - HEAD
               MaxAge: 3000
     
-    BucketPolicy:
-      Type: AWS::S3::BucketPolicy
-      Properties:
-        PolicyDocument:
-          Id: TodoS3Policy
-          Version: "2012-10-17"
-          Statement:
-            - Sid: PublicReadForGetBucketObjects
-              Effect: Allow
-              Principal: '*'
-              Action: 's3:GetObject'
-              Resource: 'arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*'
-        Bucket: !Ref AttachmentsBucket
+  #  BucketPolicy:
+  #    Type: AWS::S3::BucketPolicy
+  #    Properties:
+  #      PolicyDocument:
+  #        Id: TodoS3Policy
+  #        Version: "2012-10-17"
+  #        Statement:
+  #          - Sid: PublicReadForGetBucketObjects
+  #            Effect: Allow
+  #            Principal: '*'
+  #            Action: 's3:GetObject'
+  #            Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*'
+  #      Bucket: !Ref AttachmentsBucket
           
