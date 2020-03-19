@@ -50,11 +50,16 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       const newTodo = await createTodo(this.props.auth.getIdToken(), {
         name: this.state.newTodoName,
         dueDate
-      })
-      this.setState({
-        todos: [...this.state.todos, newTodo],
+      }).then(data=>{
+        console.log("Await is over")
+        console.log(data)
+        this.setState({
+        todos: [...this.state.todos,data],
         newTodoName: ''
       })
+      })
+      
+      
     } catch {
       alert('Todo creation failed')
     }
@@ -157,6 +162,8 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   }
 
   renderTodosList() {
+    console.log("Render to do list")
+    console.log(this.state.todos)
     return (
       <Grid padded>
         {this.state.todos.map((todo, pos) => {
