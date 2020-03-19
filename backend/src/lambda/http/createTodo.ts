@@ -19,6 +19,17 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const userId = getUserId(event)
   const name = newTodo.name
   const dueDate = newTodo.dueDate
+  
+  if(name.length == 0){
+    return {
+      statusCode:404,
+      headers:{
+        'Access-Control-Allow-Origin': '*'
+      },
+      body:""
+    }
+  }
+  
 
   const items = await createTodo(userId,todoId,name,dueDate)
   
