@@ -127,6 +127,5 @@ export class DataAccess{
 
 
 function createDynamoDBClient() {
-   this.logger.info("create documentClient")    
    return new DocumentClient()
 }
