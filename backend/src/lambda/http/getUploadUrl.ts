@@ -17,9 +17,17 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   logger.info(event.headers)
   logger.info(contentType)
   const url = getUploadUrl(todoId,contentType);
+  
+  //`https://${bucketName}.s3.amazonaws.com/${imageId}`
+  
+  const s3ObjectUrl = `https://${process.env.ATTACHMENT_S3_BUCKET}.s3-${process.env.REGION}.amazonaws.com/${todoId}`
+  
+  logger.info("Object Url")
+  logger.info(s3ObjectUrl)
   logger.info(url)
   
-  await updateAttachmentUrl(userId,todoId,url)
+  
+  await updateAttachmentUrl(userId,todoId,s3ObjectUrl)
   
   
   return {

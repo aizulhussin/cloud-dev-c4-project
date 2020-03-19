@@ -71,7 +71,13 @@ export async function deleteTodo(userId:string,todoId:string){
 
 
 export function getUploadUrl(todoId: string,contentType:string) {
+  
+  logger.info("getUploadUrl")
   logger.info(bucketName)
+  
+  logger.info(AWS.config.credentials)
+  logger.info(AWS.config.region)
+  logger.info(contentType)
   
   return s3.getSignedUrl('putObject', {
     Bucket: bucketName,
