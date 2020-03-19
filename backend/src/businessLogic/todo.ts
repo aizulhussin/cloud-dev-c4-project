@@ -15,40 +15,59 @@ const s3 = new AWS.S3({
 })
 
 export async function getAllTodos(userId:string) {
-  logger.info("getAllTodos")
-  const items = await dataAccess.getAllToDos(userId)
-  logger.info(items)
-  return items;
+  try{
+    logger.info("getAllTodos")
+    const items = await dataAccess.getAllToDos(userId)
+    logger.info(items)
+    return items;
+  }
+  catch(error){
+    logger.error(error)
+    return {}
+  }
 }
 
 export async function createTodo(userId:string,todoId:string,name:string,dueDate:string){
-  logger.info("createTodo")
-  const createdAt = new Date().toISOString()
-  const done = false;
-  const attachmentUrl = "none"
-  const newItem = {
-    userId,
-    todoId,
-    createdAt,
-    done,
-    name,
-    dueDate,
-    attachmentUrl
-  }
   
-  logger.info(newItem)
-  const item = newItem as TodoItem
-  logger.info(item)
-  return await dataAccess.createTodo(item)
+  logger.info("createTodo")
+  
+  try{
+    const createdAt = new Date().toISOString()
+    const done = false;
+    const attachmentUrl = "none"
+    const newItem = {
+      userId,
+      todoId,
+      createdAt,
+      done,
+      name,
+      dueDate,
+      attachmentUrl
+    }
+    
+    logger.info(newItem)
+    const item = newItem as TodoItem
+    logger.info(item)
+    return await dataAccess.createTodo(item)
+  }
+  catch(error){
+    logger.error(error)
+    return {}
+  }
   
 }
 
 
 export async function updateTodo(userId:string,todoId:string,updateTodo:UpdateTodoRequest){
     
-    logger.info("updateTodo")
-    const todoUpdate = updateTodo as TodoUpdate
-    return await dataAccess.updateTodo(userId,todoId,todoUpdate)
+    try{
+      logger.info("updateTodo")
+      const todoUpdate = updateTodo as TodoUpdate
+      return await dataAccess.updateTodo(userId,todoId,todoUpdate)
+    }
+    catch(error){
+      logger.error(error)
+    }
 }
 
 
@@ -65,19 +84,18 @@ export async function updateAttachmentUrl(userId:string,todoId:string,url:string
 
 
 export async function deleteTodo(userId:string,todoId:string){
-    logger.info("deleteTodo")
-    return await dataAccess.deleteTodo(userId,todoId)
+    try{
+      logger.info("deleteTodo")
+      return await dataAccess.deleteTodo(userId,todoId)
+    }catch(error){
+      logger.error(error)
+    }
 }
 
 
 export function getUploadUrl(todoId: string,contentType:string) {
   
   logger.info("getUploadUrl")
-  logger.info(bucketName)
-  
-  logger.info(AWS.config.credentials)
-  logger.info(AWS.config.region)
-  logger.info(contentType)
   
   return s3.getSignedUrl('putObject', {
     Bucket: bucketName,

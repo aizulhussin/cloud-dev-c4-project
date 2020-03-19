@@ -12,7 +12,7 @@ export class DataAccess{
     private readonly logger = createLogger("DataAccess"))
     {}
   
-  //getAllToDos
+  
   async getAllToDos(userId:string) {
       this.logger.info("getAllToDos")
       
@@ -37,26 +37,30 @@ export class DataAccess{
   
   
   async updateAttachmentUrl(userId:string,todoId:string,url:string){
-    var params = {
-        TableName:this.todosTable,
-        Key:{
-            "userId":userId,
-            "todoId": todoId,
-        },
-        UpdateExpression: "set attachmentUrl = :url",
-        ExpressionAttributeValues:{
-            ":url":url
-        },
-        ReturnValues:"UPDATED_NEW"
-      };
-      
-      return await this.docClient.update(params).promise()  
+    try{
+        var params = {
+            TableName:this.todosTable,
+            Key:{
+                "userId":userId,
+                "todoId": todoId,
+            },
+            UpdateExpression: "set attachmentUrl = :url",
+            ExpressionAttributeValues:{
+                ":url":url
+            },
+            ReturnValues:"UPDATED_NEW"
+          };
+          
+          return await this.docClient.update(params).promise()
+    }catch(error){
+        this.logger.error(error)
+    }
   }
   
   
   //updateToDo
   async updateTodo(userId:string,todoId:string,item:TodoUpdate){
-      
+      try{
         var params = {
         TableName:this.todosTable,
         Key:{
@@ -72,7 +76,10 @@ export class DataAccess{
         ReturnValues:"UPDATED_NEW"
       };
       
-      return await this.docClient.update(params).promise()
+        return await this.docClient.update(params).promise()
+      }catch(error){
+          this.logger.error(error)
+      }
       
   }
   
@@ -80,13 +87,13 @@ export class DataAccess{
   //createTodo
   async createTodo(item:TodoItem){
       try{
-      await this.docClient.put({
-      TableName: this.todosTable,
-      Item: item
-    }).promise()
-      
-        this.logger.info("create todo success")
-        return item
+          await this.docClient.put({
+          TableName: this.todosTable,
+          Item: item
+        }).promise()
+          
+            this.logger.info("create todo success")
+            return item
           
       }
       catch(error){
@@ -97,17 +104,18 @@ export class DataAccess{
   
   //deleteTodo
   async deleteTodo(userId:string,todoId:string){
+    
+    this.logger.info("deleteTodo")
     try{
-    var params = {
-        TableName:this.todosTable,
-        Key:{
-            "userId": userId,
-            "todoId": todoId,
-        }
-     };
-     
-     this.logger.info("delete successful")
-     return await this.docClient.delete(params).promise()
+        var params = {
+            TableName:this.todosTable,
+            Key:{
+                "userId": userId,
+                "todoId": todoId,
+            }
+         };
+         this.logger.info("delete todo success")
+         return await this.docClient.delete(params).promise()
      
     }catch(error){
         this.logger.info(error)
@@ -119,6 +127,6 @@ export class DataAccess{
 
 
 function createDynamoDBClient() {
-   console.log("create documentClient")    
+   this.logger.info("create documentClient")    
    return new DocumentClient()
 }
