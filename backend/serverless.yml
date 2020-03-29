@@ -43,6 +43,9 @@ functions:
     events:
       - http:
           method: post
+          request:
+            schema:
+              application/json: ${file(src/schemas/todoRequest.json)}
           path: todos
           cors: true
           authorizer: Auth

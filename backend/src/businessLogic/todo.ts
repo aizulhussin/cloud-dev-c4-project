@@ -3,16 +3,9 @@ import { TodoItem } from '../models/TodoItem'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 import { TodoUpdate } from '../models/TodoUpdate'
 import { createLogger } from '../utils/logger'
-import * as AWS  from 'aws-sdk'
 
 const dataAccess = new DataAccess()
 const logger = createLogger("todo")
-const bucketName = process.env.ATTACHMENT_S3_BUCKET
-const urlExpiration = process.env.SIGNED_URL_EXPIRATION
-
-const s3 = new AWS.S3({
-  signatureVersion: 'v4'
-})
 
 export async function getAllTodos(userId:string) {
   try{
@@ -71,12 +64,12 @@ export async function updateTodo(userId:string,todoId:string,updateTodo:UpdateTo
 }
 
 
-export async function updateAttachmentUrl(userId:string,todoId:string,url:string){
+export async function updateAttachmentUrl(userId:string,todoId:string){
     
     logger.info("updateAttachmentUrl")
     try{
         logger.info("updateAttachmentUrl success")
-        return await dataAccess.updateAttachmentUrl(userId,todoId,url)
+        return await dataAccess.updateAttachmentUrl(userId,todoId)
     }catch(error){
         logger.error(error)
     }
@@ -93,16 +86,19 @@ export async function deleteTodo(userId:string,todoId:string){
 }
 
 
-export function getUploadUrl(todoId: string,contentType:string) {
+export async function getUploadUrl(todoId: string,contentType:string,userId:string) {
   
-  logger.info("getUploadUrl")
+  try{
+    logger.info("getUploadUrl")
+    const url = dataAccess.getSignedUrl(todoId,contentType)
+    await updateAttachmentUrl(userId,todoId)
+    logger.info(url)
+    return url
   
-  return s3.getSignedUrl('putObject', {
-    Bucket: bucketName,
-    Key: todoId,
-    ContentType:contentType,
-    Expires: urlExpiration
-  })
+  }catch(error){
+    logger.error(error)
+  }
+  
 }
 
 

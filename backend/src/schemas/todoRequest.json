@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "todoRequest",
+    "type": "object",
+    "properties": {
+        "name": { "type": "string","pattern":"[a-zA-Z]" },
+        "dueDate": { "type": "string" }
+    },
+    "required": [
+        "name",
+        "dueDate"
+    ],
+    "additionalProperties": false
+}

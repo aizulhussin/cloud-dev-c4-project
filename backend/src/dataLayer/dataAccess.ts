@@ -3,13 +3,23 @@ import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { TodoItem } from '../models/TodoItem'
 import { TodoUpdate } from '../models/TodoUpdate'
 import { createLogger } from '../utils/logger'
+import * as AWS  from 'aws-sdk'
+
+
+const bucketName = process.env.ATTACHMENT_S3_BUCKET
+const urlExpiration = process.env.SIGNED_URL_EXPIRATION
+const region = process.env.REGION
 
 export class DataAccess{
+    
+    
+
     
     constructor(
     private readonly docClient: DocumentClient = createDynamoDBClient(),
     private readonly todosTable = process.env.TODOS_TABLE,
-    private readonly logger = createLogger("DataAccess"))
+    private readonly logger = createLogger("DataAccess"),
+    private readonly s3 = createS3Client(),)
     {}
   
   
@@ -36,8 +46,11 @@ export class DataAccess{
   }
   
   
-  async updateAttachmentUrl(userId:string,todoId:string,url:string){
+  async updateAttachmentUrl(userId:string,todoId:string){
     try{
+        
+        const url = `https://${bucketName}.s3-${region}.amazonaws.com/${todoId}`
+        
         var params = {
             TableName:this.todosTable,
             Key:{
@@ -56,6 +69,32 @@ export class DataAccess{
         this.logger.error(error)
     }
   }
+  
+  
+  async getSignedUrl(todoId:string,contentType:string){
+      
+      this.logger.info("getSignedUrl")
+      
+      try{
+          const url = await  this.s3.getSignedUrl('putObject', {
+                Bucket: bucketName,
+                Key: todoId,
+                ContentType:contentType,
+                Expires: urlExpiration
+              })
+              
+          this.logger.info(url)      
+              
+          return url
+          
+      }catch(error){
+          this.logger.error(error)
+      }  
+          
+          
+          
+  }
+  
   
   
   //updateToDo
@@ -123,6 +162,13 @@ export class DataAccess{
     }
   }
   
+}
+
+
+function createS3Client(){
+    return new AWS.S3({
+    signatureVersion: 'v4'
+    })
 }
 
 

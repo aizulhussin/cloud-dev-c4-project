@@ -51,7 +51,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
         name: this.state.newTodoName,
         dueDate
       }).then(data=>{
-        console.log("Await is over")
+        
         console.log(data)
         this.setState({
         todos: [...this.state.todos,data],
